@@ -1,0 +1,3 @@
+[submodule "gfxreconstruct"]
+	path = gfxreconstruct
+	url = https://github.com/LunarG/gfxreconstruct.git
