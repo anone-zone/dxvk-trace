@@ -23,3 +23,6 @@ fi
 7z x "apitrace-$VERSION-win32.7z"
 7z x "apitrace-$VERSION-win64.7z"
 
+mv "apitrace-$VERSION-win32" "apitrace-win32"
+mv "apitrace-$VERSION-win64" "apitrace-win64"
+
