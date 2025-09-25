@@ -4,8 +4,8 @@ Steam/Proton utility for sandwiching dxvk with apitrace and gfxreconstruct to ca
 
 ## Dependencies
 
-- Steam + a game set up for Proton/dxvk
-- apitrace
+- Steam + a Windows game set up for Proton + dxvk
+- apitrace, curl, python, 7z
 - [gfxreconstruct/BUILD.md#required-package-list](https://github.com/LunarG/gfxreconstruct/blob/vulkan-sdk-1.4.321.0/BUILD.md#required-package-list)
 
 ## Usage
