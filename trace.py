@@ -113,10 +113,12 @@ def get_wine_desktop_dir(appid):
     return desktop_path
 
 
-def get_apitrace_install_dir(appid):
+def get_apitrace_install_dir(appid, rel_path):
     game_dir = get_game_dir(appid)
-    # TODO: might need to be in a subdir
-    print(f"apitrace install dir: '{game_dir}'")
+
+    if rel_path is not None:
+        return os.path.join(game_dir, rel_path)
+
     return game_dir
 
 
@@ -144,9 +146,10 @@ def is_apitrace_binary(path):
     return False
 
 
-def uninstall_apitrace(appid):
+def uninstall_apitrace(appid, rel_path):
     print("Uninstalling apitrace...")
-    install_dir = get_apitrace_install_dir(appid)
+    install_dir = get_apitrace_install_dir(appid, rel_path)
+    print(f"apitrace install dir: '{install_dir}'")
 
     for bin in APITRACE_BINARIES:
         install_path = os.path.join(install_dir, bin)
@@ -157,11 +160,12 @@ def uninstall_apitrace(appid):
                 pathlib.Path.unlink(install_path)
 
 
-def install_apitrace(appid, is_32_bit):
+def install_apitrace(appid, is_32_bit, rel_path):
     print("Installing apitrace...")
     source_dir = get_apitrace_source_dir(is_32_bit)
     print(f"apitrace source dir: '{source_dir}'")
-    install_dir = get_apitrace_install_dir(appid)
+    install_dir = get_apitrace_install_dir(appid, rel_path)
+    print(f"apitrace install dir: '{install_dir}'")
 
     for bin in APITRACE_BINARIES:
         source_path = os.path.join(source_dir, bin)
@@ -280,19 +284,21 @@ if __name__ == "__main__":
                         help="Use for 32-bit games.")
     parser.add_argument('-u', '--uninstall', action='store_true',
                         help="Uninstall existing apitrace binaries from the game directory.")
+    parser.add_argument('-i', '--install_dir',
+                        help="Relative path to game root to install apitrace to.")
     parser.add_argument('appid', help="The appid to launch on Steam.")
     args = parser.parse_args()
 
     if args.uninstall:
-        uninstall_apitrace(args.appid)
+        uninstall_apitrace(args.appid, args.install_dir)
         exit()
 
-    install_apitrace(args.appid, args.x86)
+    install_apitrace(args.appid, args.x86, args.install_dir)
     kill_steam()
     set_env_vars(args.x86)
     launch_game(args.appid)
     wait_for_game_launch()
     wait_for_game_exit()
     kill_steam()
-    uninstall_apitrace(args.appid)
+    uninstall_apitrace(args.appid, args.install_dir)
     move_trace_files(args.appid)
