@@ -35,7 +35,7 @@ def get_library_dirs():
     for line in vdf_lines:
         if '"path"' in line:
             dir = line.split('"')[-2]
-            dir = os.path.join(dir, "steamapps", "common")
+            dir = os.path.join(dir)
             if os.path.exists(dir):
                 dirs.append(dir)
 
@@ -48,11 +48,17 @@ def get_library_dirs():
 
 
 def get_game_dir(appid):
-    acf_path = os.path.expanduser(
-        f"~/.steam/root/steamapps/appmanifest_{appid}.acf")
+    libraries = get_library_dirs()
+    acf_name = f"appmanifest_{appid}.acf"
+
+    for lib_path in libraries:
+        acf_path = os.path.join(lib_path, "steamapps", acf_name)
+        if os.path.exists(acf_path):
+            break
+
     if not os.path.exists(acf_path):
         raise FileNotFoundError(
-            f"Could not find Steam appmanifest: '{acf_path}'")
+            f"Could not find Steam appmanifest: '{acf_name}'")
 
     print(f"Reading installdir from '{acf_path}'")
     acf = open(acf_path, "r")
@@ -67,18 +73,17 @@ def get_game_dir(appid):
     if game_dir is None:
         raise FileNotFoundError(f"Could not find installdir in '{acf_path}'")
 
-    library_dirs = get_library_dirs()
     full_game_path = None
 
-    for library in library_dirs:
-        full_path = os.path.join(library, game_dir)
+    for lib_path in libraries:
+        full_path = os.path.join(lib_path, "steamapps", "common", game_dir)
         if os.path.exists(full_path):
             full_game_path = full_path
             break
 
     if full_game_path is None:
         raise FileNotFoundError(
-            f"Could not find game '{game_dir}' in libraries {library_dirs}")
+            f"Could not find game '{game_dir}' in libraries {libraries}")
 
     print(f"Found game path: '{full_game_path}'")
     return full_game_path
@@ -86,12 +91,16 @@ def get_game_dir(appid):
 
 def get_game_compat_dir(appid):
     print("Getting compatdata path")
-    compatdata_path = os.path.expanduser("~/.steam/steam/steamapps/compatdata")
-    game_compat_path = os.path.join(compatdata_path, appid)
-    if not os.path.exists(game_compat_path):
+    libraries = get_library_dirs()
+    for lib_path in libraries:
+        compatdata_path = os.path.join(
+            lib_path, "steamapps", "compatdata", appid)
+        if os.path.exists(compatdata_path):
+            break
+    if not os.path.exists(compatdata_path):
         raise FileNotFoundError(
-            f"Could not find compatdata: '{game_compat_path}'")
-    return game_compat_path
+            f"Could not find compatdata for '{appid}' in libraries: '{libraries}'")
+    return compatdata_path
 
 
 def get_wine_desktop_dir(appid):
@@ -204,7 +213,7 @@ def launch_game(appid):
     subprocess.Popen(["steam", "-applaunch", appid], env=os.environ)
     # HACK: apparently steam starts a steam.exe on launch for a brief time...?
     # this messes with wait_for_game_launch() / wait_for_game_exit()
-    time.sleep(10)
+    time.sleep(15)
 
 
 def is_process_running(name):
