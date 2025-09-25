@@ -295,7 +295,7 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--uninstall', action='store_true',
                         help="Uninstall existing apitrace binaries from the game directory.")
     parser.add_argument('-i', '--install_dir',
-                        help="Relative path to game root to install apitrace to.")
+                        help="Directory to install apitrace to, relative to game root. Leave empty for auto-detect.")
     parser.add_argument('appid', help="The appid to launch on Steam.")
     args = parser.parse_args()
 
