@@ -118,6 +118,17 @@ def get_apitrace_install_dir(appid, rel_path):
 
     if rel_path is not None:
         return os.path.join(game_dir, rel_path)
+    else:
+        # Unreal Engine?
+        win64_shipping = glob.glob(
+            "**/*Win64-Shipping.exe", root_dir=game_dir, recursive=True)
+        print(win64_shipping)
+        if len(win64_shipping) > 0:
+            return os.path.dirname(os.path.join(game_dir, win64_shipping[0]))
+        win32_shipping = glob.glob(
+            "**/*Win32-Shipping.exe", root_dir=game_dir, recursive=True)
+        if len(win32_shipping) > 0:
+            return os.path.dirname(os.path.join(game_dir, win32_shipping[0]))
 
     return game_dir
 
